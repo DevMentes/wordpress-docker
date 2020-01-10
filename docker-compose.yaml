@@ -9,7 +9,7 @@ services:
     environment:
       - MYSQL_DATABASE=wordpress
     volumes: 
-      - dbdata:/var/lib/mysql
+      - ./dbdata:/var/lib/mysql
     command: '--default-authentication-plugin=mysql_native_password'
     networks:
       - app-network
@@ -39,28 +39,18 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
+    environment:
+      - VIRTUAL_HOST=getcolors.cl,www.getcolors.cl
+      - LETSENCRYPT_HOST=getcolors.cl,www.getcolors.cl
+      - LETSENCRYPT_EMAIL=contacto@getcolors.cl
     volumes:
       - wordpress:/var/www/html
       - ./nginx-conf:/etc/nginx/conf.d
-      - certbot-etc:/etc/letsencrypt
     networks:
       - app-network
 
-  certbot:
-    depends_on:
-      - webserver
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - certbot-etc:/etc/letsencrypt
-      - wordpress:/var/www/html
-    command: certonly --webroot --webroot-path=/var/www/html --email sammy@example.com --agree-tos --no-eff-email --force-renewal -d example.com -d www.example.com
-
 volumes:
-  certbot-etc:
   wordpress:
-  dbdata:
 
 networks:
   app-network:
